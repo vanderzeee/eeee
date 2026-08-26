@@ -1,0 +1,13 @@
+body{
+    background-color: aqua;
+}
+
+img{
+    width: 300;
+}
+
+p{
+    font-size: 30px;
+    color: crimson;
+    border: 10px dotted white;
+}
