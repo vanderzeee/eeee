@@ -4,6 +4,7 @@ body{
 
 img{
     width: 300;
+    border: 10px double darkgreen;
 }
 
 p{
