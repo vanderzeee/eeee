@@ -1,14 +1,21 @@
 body{
-    background-color: aqua;
+    background-color: rgb(255, 194, 217);
 }
 
 img{
     width: 300;
-    border: 10px double darkgreen;
+    border: 10px double darkred;
 }
 
 p{
     font-size: 30px;
     color: crimson;
     border: 10px dotted white;
+}
+
+canvas {
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: -1;
 }

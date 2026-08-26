@@ -1,136 +1,57 @@
-const FRAME_COUNT = 12;
-const FRAME_DURATION = 60;
-const STAR_MIN_SIZE = 140;
-const STAR_MAX_SIZE = 320;
+let eyes = [];
+let numEyes = 20;
 
-// ---------------- CANVAS ----------------
-const canvas = document.getElementById('c');
-const ctx = canvas.getContext('2d');
-const bgDiv = document.getElementById('bg');
-
-function resize(){
-  canvas.width = innerWidth;
-  canvas.height = innerHeight;
-}
-resize();
-addEventListener('resize', resize);
-
-// ---------------- IMGS ----------------
-function pad(n){ return String(n).padStart(2,'0'); }
-
-function loadGroup(name){
-  let arr = [];
-  for(let i=1;i<=FRAME_COUNT;i++){
-    let img = new Image();
-    img.src = `assets/${name}/${name}_${pad(i)}.PNG`;
-    arr.push(img);
+function setup() {
+  createCanvas(windowWidth,windowHeight);
+  angleMode(DEGREES);
+  for(let i = 0; i < numEyes; i++) {
+    eyes.push(new Eyeball(random(width), random(height)));
   }
-  return arr;
 }
 
-const groupA = loadGroup('a');
-const groupB = loadGroup('b');
-const groups = [groupA, groupB];
+function draw() {
+  background(0);
+  for (let i = 0; i < numEyes; i++) {
+    eyes[i].display();    
+  } 
+}
+  
 
-// ---------------- STAR ----------------
-class Star{
-  constructor(x,y){
-    this.x = x;
-    this.y = y;
-    this.size = STAR_MIN_SIZE + Math.random()*(STAR_MAX_SIZE-STAR_MIN_SIZE);
-    this.frames = groups[Math.floor(Math.random()*groups.length)];
-    this.start = performance.now();
-    this.dead = false;
+class Eyeball {
+  constructor(x, y) {
+  this.x = x;
+  this.y = y;
+  this.d = random(60, 150);  
   }
-  update(){
-    let t = performance.now() - this.start;
-    let idx = Math.floor(t / FRAME_DURATION);
-    if(idx >= this.frames.length){
-      this.dead = true;
+  
+  display() {
+    
+     let overlapping = false;
+  for (let i = 0; i < numEyes; i++) {
+    let other = eyes[i];
+    let distance = dist(this.x, this.y, other.x, other.y);
+    if (distance < this.d/2 + other.d/2) {
+      overlapping = true;
     }
-    this.frame = idx;
-  }
-  draw(){
-    let img = this.frames[Math.min(this.frame, this.frames.length-1)];
-    if(!img) return;
-    ctx.drawImage(
-      img,
-      this.x - this.size/2,
-      this.y - this.size/2,
-      this.size,
-      this.size
-    );
-  }
-}
+    if (!overlapping) {
+          // Calculate angle between right eye and angle
+  let rightAngle = atan2(mouseY - this.y, mouseX - this.x);
 
-let stars = [];
-
-// ---------------- STATES ----------------
-let pointerDown = false;
-let spaceHeld = false;
-let invert = 0;
-
-// ---------------- INPUT ----------------
-canvas.addEventListener("pointerdown",(e)=>{
-  pointerDown = true;
-  const rect = canvas.getBoundingClientRect();
-  stars.push(
-    new Star(
-      e.clientX - rect.left,
-      e.clientY - rect.top
-    )
-  );
-});
-
-window.addEventListener("pointerup",()=>{
-  pointerDown = false;
-});
-
-window.addEventListener("keydown",(e)=>{
-  if(e.code === "Space"){
-    spaceHeld = true;
-  }
-});
-
-window.addEventListener("keyup",(e)=>{
-  if(e.code === "Space"){
-    spaceHeld = false;
-  }
-});
-
-// ---------------- LOOP ----------------
-function loop(){
-  requestAnimationFrame(loop);
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-
-  // smooth fade
-  let target = spaceHeld ? 1 : 0;
-  invert += (target - invert) * 0.08; // slower = longer fade
-  if(Math.abs(target - invert) < 0.002) invert = target; // snap to fully resolve
-
-  // stars invert
-  canvas.classList.toggle('inverted', invert > 0.5);
-
-  // background fade
-  let bg = 255 - invert * 255;
-  bgDiv.style.background = `rgb(${bg},${bg},${bg})`;
-
-  if(invert > 0.5 && Math.random() < 0.06){
-    stars.push(
-      new Star(
-        Math.random()*canvas.width,
-        Math.random()*canvas.height
-      )
-    );
-  }
-
-  // update + draw
-  for(let i=stars.length-1;i>=0;i--){
-    stars[i].update();
-    stars[i].draw();
-    if(stars[i].dead){
-      stars.splice(i,1);
+  push();
+  translate(this.x, this.y); 
+  fill(255);
+  ellipse(0, 0, this.d);
+  rotate(rightAngle);
+  fill(0);
+  ellipse(12.5, 0, this.d/2);
+  pop();
     }
   }
+     
+  } 
+ 
 }
-loop();
+
+ function windowResized() {
+    resizeCanvas(windowWidth,windowHeight);
+  }
